@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form th:action="@{/login}" method="post" th:object="${loginForm}">
+    <input type="text" th:field="*{username}" placeholder="Логин" required />
+    <input type="password" th:field="*{password}" placeholder="Пароль" required />
+    <button type="submit">Войти</button>
+    <a th:href="@{/register}">Регистрация</a>
+</form>
+<p>Система для проведения электронных голосований с поддержкой анонимности и гибких настроек.</p>
+</body>
+</html>

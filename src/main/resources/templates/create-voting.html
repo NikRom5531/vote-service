@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form th:action="@{/voting/save}" method="post" th:object="${votingForm}">
+    <input type="text" th:field="*{title}" placeholder="Название" required />
+    <label><input type="checkbox" th:field="*{anonymous}"> Анонимное</label>
+    <label><input type="checkbox" th:field="*{closed}"> Закрытое</label>
+    <input type="password" th:field="*{password}" placeholder="Пароль (если закрытое)" th:disabled="${!closed}" />
+    <input type="datetime-local" th:field="*{endDate}" required />
+
+    <!-- Конструктор вопросов -->
+    <div th:each="question, iter : ${votingForm.questions}">
+        <input type="text" th:field="*{questions[__${iter.index}__].text}" placeholder="Текст вопроса" />
+        <select th:field="*{questions[__${iter.index}__].type}">
+            <option value="SINGLE_CHOICE">Один вариант</option>
+            <option value="MULTIPLE_CHOICE">Несколько вариантов</option>
+            <option value="SIMPLE_TEXT">Текстовый ответ</option>
+        </select>
+        <div th:if="${question.type != 'SIMPLE_TEXT'}">
+            <input type="text" th:field="*{questions[__${iter.index}__].options}" placeholder="Варианты через запятую" />
+        </div>
+    </div>
+    <button type="button" onclick="addQuestion()">Добавить вопрос</button>
+    <button type="submit">Создать голосование</button>
+</form>
+</body>
+</html>
