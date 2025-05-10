@@ -1,14 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Главная страница</title>
+    <script th:src="@{/js/general.js}" defer></script>
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
 </head>
 <body>
+<h1>Добро пожаловать, <span th:text="${user.firstName}"></span>!</h1>
+
+<!-- Кнопки действий -->
+<!--<div sec:authorize="hasRole('ADMIN')">-->
+<!--    <a th:href="@{/voting/create}" class="btn">Создать голосование</a>-->
+<!--</div>-->
 <div>
-  <a th:href="@{/voting/create}">Создать голосование</a>
-  <a th:href="@{/voting/participate}">Принять участие</a>
-  <a th:href="@{/voting/report}">Отчёт о голосовании</a>
+    <a th:href="@{/voting/create}" class="btn">Создать голосование</a>
+    <a th:href="@{/voting/participate}" class="btn">Принять участие</a>
+    <a th:href="@{/voting/report}" class="btn">Отчёт о голосовании</a>
+    <a th:href="@{/profile}" class="btn">Профиль</a>
 </div>
+
+<!-- Кнопка выхода -->
+<form th:action="@{/logout}" method="post" class="logout-form">
+    <input type="submit" value="Выйти" />
+</form>
+
+<h2>Последние голосования</h2>
+<table>
+    <tr th:each="voting : ${recentVotings}">
+        <td th:text="${voting.title}">Название</td>
+        <td>
+            <span th:if="${voting.endDate.isAfter(#temporals.createNow())}">
+                Завершится: <span th:text="${#temporals.format(voting.endDate, 'dd.MM.yyyy HH:mm')}"></span>
+            </span>
+            <span th:if="${!voting.endDate.isAfter(#temporals.createNow())}" class="closed">
+                Завершено
+            </span>
+        </td>
+        <td>
+            <span th:if="${voting.anonymous}" th:class="anonymous-icon">&#128526; Анонимное</span>
+            <span th:unless="${voting.anonymous}" class="public-icon">&#128578; Не анонимное</span>
+        </td>
+        <td>
+            <span th:if="${voting.closed}" class="lock-icon">&#128274; закрытое</span>
+            <span th:unless="${voting.closed}" class="unlock-icon">&#128275; открытое</span>
+        </td>
+        <td>
+            <button onclick="copyToClipboard(this)"
+                    th:attr="data-id=${voting.id}">
+                Скопировать ID
+            </button>
+        </td>
+        <td>
+            <button th:if="${voting.closed}"
+                    onclick="copyToClipboard(this)"
+                    th:attr="data-password=${voting.password}">
+                Скопировать пароль
+            </button>
+        </td>
+    </tr>
+</table>
 </body>
 </html>

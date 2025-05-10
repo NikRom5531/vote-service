@@ -8,11 +8,13 @@ spring:
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create-drop # todo
     show-sql: true
   liquibase:
     change-log: db/changelog/db.changelog-master.xml
-    enabled: true
+    enabled: false # todo
+  thymeleaf:
+    cache: false
 
 springdoc:
   swagger-ui:
@@ -24,5 +26,5 @@ server:
   address: ${SERVER_ADDRESS:localhost}
   port: ${SERVER_PORT:8080}
 
-server-custom:
-  url-address: ${SERVER_URL:http://${server.address}:${server.port}}
+#server-custom:
+#  url-address: ${SERVER_URL:http://${server.address}:${server.port}}

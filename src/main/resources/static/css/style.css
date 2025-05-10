@@ -1,0 +1,23 @@
+.hidden {
+    display: none;
+}
+
+.anonymous-icon {
+    color: green;
+}
+
+.public-icon {
+    color: blue;
+}
+
+.lock-icon {
+    color: red;
+}
+
+.unlock-icon {
+    color: orange;
+}
+
+.closed {
+    color: gray;
+}

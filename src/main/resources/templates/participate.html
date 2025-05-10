@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Принять участие в голосовании</title>
+</head>
+<body>
+<form th:action="@{/voting/participate}" method="post" th:object="${participationForm}">
+    <input type="text" th:field="*{votingId}" placeholder="ID голосования" required />
+
+    <div th:if="${voting != null and voting.closed}">
+        <input type="password" th:field="*{password}" placeholder="Пароль" required />
+        <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+    </div>
+
+    <button type="submit">Приступить</button>
+    <div th:if="${#fields.hasErrors('votingId')}" th:errors="*{votingId}"></div>
+
+    <div th:if="${#fields.hasErrors('votingId')}">
+        <p th:each="error : ${#fields.errors('votingId')}" th:text="${error}"></p>
+    </div>
+    <div th:if="${#fields.hasErrors('password')}">
+        <p th:each="error : ${#fields.errors('password')}" th:text="${error}"></p>
+    </div>
+</form>
+</body>
+</html>

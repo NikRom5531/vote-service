@@ -1,18 +1,22 @@
 package ru.romanov.voteservice.model.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.romanov.voteservice.model.enums.AnswerType;
-
-import java.util.List;
+import ru.romanov.voteservice.model.enums.QuestionType;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class QuestionDto {
 
-    private String text; // Текст вопроса
+    @NotBlank(message = "Текст вопроса обязателен")
+    private String text;
 
-    private List<String> answerVariant; // Варианты ответов
+    private QuestionType type;
 
-    private AnswerType answerType; // Тип ответа
+    private String options;
+
+    private boolean required;
 }

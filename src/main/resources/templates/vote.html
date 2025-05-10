@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Голосование: <span th:text="${voting.title}"></span></title>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const endDate = [[${voting.endDate}]]; /*'2025-04-20T23:59'*/
+        function updateTimer() {
+            const now = new Date().getTime();
+            const end = new Date(endDate).getTime();
+            const diff = end - now;
+
+            if (diff <= 0) {
+                document.getElementById('timer').innerHTML = 'Голосование завершено';
+                return;
+            }
+
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            document.getElementById('timer').innerHTML = `Осталось: ${hours}ч ${minutes}мин ${seconds}с`;
+        }
+
+        setInterval(updateTimer, 1000);
+        /*]]>*/
+    </script>
+</head>
+<body>
+<h1 th:text="${voting.title}"></h1>
+<p>Тип: <span th:text="${voting.anonymous} ? 'Анонимное' : 'Публичное'"></span></p>
+<p>Закрывается через: <span id="timer"></span></p>
+<form th:action="@{/vote/submit}" method="post" th:object="${answerForm}">
+    <input type="hidden" name="votingId" th:value="${voting.id}" />
+
+    <div th:each="q, iterStat : ${voting.questions}">
+        <h3 th:text="${q.text}"></h3>
+        <h4 th:text="${q.id}"></h4>
+
+        <!-- Скрытое поле для questionId -->
+        <input type="hidden"
+               th:name="|answers[${iterStat.index}].questionId|"
+               th:value="${q.id}" />
+
+        <!-- Для выбора одного варианта -->
+        <div th:if="${q.type.name() == 'SINGLE_CHOICE'}">
+            <div th:each="v : ${q.variants}">
+                <label>
+                    <input type="radio"
+                           th:name="|answers[${iterStat.index}].answer|"
+                           th:value="${v}"
+                           required />
+                    <span th:text="${v}"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Для выбора нескольких вариантов -->
+        <div th:if="${q.type.name() == 'MULTIPLE_CHOICE'}">
+            <div th:each="v : ${q.variants}">
+                <label>
+                    <input type="checkbox"
+                           th:name="|answers[${iterStat.index}].answer|"
+                           th:value="${v}" />
+                    <span th:text="${v}"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit">Отправить голос</button>
+</form>
+<!--<form th:action="@{/vote/submit}" method="post">  &lt;!&ndash;th:object="${answers}"&ndash;&gt;-->
+<!--    <input type="hidden" name="votingId" th:value="${voting.id}"/>-->
+
+<!--    <div th:each="q, iterStat : ${voting.questions}">-->
+
+<!--        <h3 th:text="${q.text}"></h3>-->
+<!--        <h4 th:text="${q.id}"></h4>-->
+
+<!--        &lt;!&ndash; Скрытое поле для questionId &ndash;&gt;-->
+<!--        <input type="hidden"-->
+<!--               th:name="|answers[${iterStat.index}].questionId|"-->
+<!--               th:value="${q.id}" />-->
+
+<!--        &lt;!&ndash; Для выбора одного варианта &ndash;&gt;-->
+<!--        <div th:if="${q.type.name() == 'SINGLE_CHOICE'}">-->
+<!--            <div th:each="v, optionStat : ${q.variants}">-->
+<!--                <label>-->
+
+<!--&lt;!&ndash;                    th:name="${answerForm.addLastAnswer}"&ndash;&gt;-->
+<!--                    <input type="radio" th:value="${answerForm.addLastAnswer(v)}" />-->
+<!--                    <span th:text="${v}"></span>-->
+<!--                </label>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        &lt;!&ndash; Для выбора нескольких вариантов &ndash;&gt;-->
+<!--        <div th:if="${q.type.name() == 'MULTIPLE_CHOICE'}">-->
+<!--            <div th:each="v, optionStat : ${q.variants}">-->
+<!--                <label>&lt;!&ndash;[__${optionStat.index}__]&ndash;&gt;-->
+<!--                    &lt;!&ndash;                           th:name="*{answers[__${iterStat.index}__].answer[__${optionStat.index}__]}"&ndash;&gt;-->
+<!--                    <input type="checkbox" th:name="${answerForm.addLastAnswer(v)}" />-->
+<!--                    <span th:text="${v}"></span>-->
+<!--                </label>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        &lt;!&ndash;-->
+<!--        &lt;!&ndash; Для выбора одного варианта &ndash;&gt;-->
+<!--        <div th:if="${q.type.name() == 'SINGLE_CHOICE'}">-->
+<!--            <div th:each="v : ${q.variants}">-->
+<!--                <label>-->
+<!--                    <input type="radio"-->
+<!--                           th:name="|answers[${q.id}]|"-->
+<!--                           th:value="${v}"/>-->
+<!--                    <span th:text="${v}"></span>-->
+<!--                </label>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        &lt;!&ndash; Для выбора нескольких вариантов &ndash;&gt;-->
+<!--        <div th:if="${q.type.name() == 'MULTIPLE_CHOICE'}">-->
+<!--            <div th:each="v : ${q.variants}">-->
+<!--                <label>-->
+<!--                    <input type="checkbox"-->
+<!--                           th:name="|answers[${q.id}]|"-->
+<!--                           th:value="${v}"/>-->
+<!--                    <span th:text="${v}"></span>-->
+<!--                </label>-->
+<!--            </div>-->
+<!--        </div>&ndash;&gt;-->
+<!--    </div>-->
+
+<!--    <button type="submit">Отправить голос</button>-->
+<!--</form>-->
+</body>
+</html>

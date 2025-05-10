@@ -1,27 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Создать голосование</title>
+    <script th:src="@{/js/voting-form.js}" defer></script>
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
 </head>
 <body>
-<form th:action="@{/voting/save}" method="post" th:object="${votingForm}">
-    <input type="text" th:field="*{title}" placeholder="Название" required />
+<form th:action="@{/voting/save}" method="post" th:object="${voting}">
+    <!-- Основные поля -->
+    <label>
+        <input type="text" th:field="*{title}" placeholder="Название" required/>
+    </label>
+
     <label><input type="checkbox" th:field="*{anonymous}"> Анонимное</label>
-    <label><input type="checkbox" th:field="*{closed}"> Закрытое</label>
-    <input type="password" th:field="*{password}" placeholder="Пароль (если закрытое)" th:disabled="${!closed}" />
-    <input type="datetime-local" th:field="*{endDate}" required />
+    <label>
+        <input type="checkbox" th:field="*{closed}" onclick="togglePasswordField()">
+        Закрытое
+    </label>
+
+    <div id="passwordField" th:class="${closed} ? '' : 'hidden'">
+        <label>
+            <input type="password" th:field="*{password}" placeholder="Пароль" required />
+        </label>
+    </div>
+
+    <label>
+        <input type="datetime-local" id="endDate" name="endDate" required />
+    </label>
 
     <!-- Конструктор вопросов -->
-    <div th:each="question, iter : ${votingForm.questions}">
-        <input type="text" th:field="*{questions[__${iter.index}__].text}" placeholder="Текст вопроса" />
-        <select th:field="*{questions[__${iter.index}__].type}">
-            <option value="SINGLE_CHOICE">Один вариант</option>
-            <option value="MULTIPLE_CHOICE">Несколько вариантов</option>
-            <option value="SIMPLE_TEXT">Текстовый ответ</option>
-        </select>
-        <div th:if="${question.type != 'SIMPLE_TEXT'}">
-            <input type="text" th:field="*{questions[__${iter.index}__].options}" placeholder="Варианты через запятую" />
+    <div id="questions-container">
+        <div class="question" th:each="question, qIter : ${voting.questions}">
+            <label>
+                <textarea th:field="*{questions[__${qIter.index}__].text}"></textarea>
+            </label>
+
+            <label>
+                <select th:field="*{questions[__${qIter.index}__].type}"
+                        th:onchange="|toggleOptions(this, ${qIter.index})|">
+                    <option value="SINGLE_CHOICE">Один вариант</option>
+                    <option value="MULTIPLE_CHOICE">Несколько вариантов</option>
+                </select>
+            </label>
+            <label><input type="checkbox" th:field="*{questions[__${qIter.index}__].required}"> Обязательность</label>
+
+            <div class="options-container">
+                <div class="option" th:each="option, oIter : ${question.variants}">
+                    <label>
+                        <input type="text"
+                               th:field="*{questions[__${qIter.index}__].variants[__${oIter.index}__]}"
+                               th:required="${question.type != 'SIMPLE_TEXT'}" />
+                    </label>
+                    <button type="button" onclick="removeOption(this)">-</button>
+                </div>
+            </div>
+            <button type="button" onclick="addOption(this, ${qIter.index})">+</button>
+            <button type="button" onclick="removeQuestion(this)">Удалить вопрос</button>
         </div>
     </div>
     <button type="button" onclick="addQuestion()">Добавить вопрос</button>
